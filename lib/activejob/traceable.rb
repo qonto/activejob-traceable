@@ -11,6 +11,30 @@ module ActiveJob
   module Traceable
     extend self
 
+    def actor_id_setter=(lambda)
+      raise 'Actor ID setter should be callable' unless lambda.respond_to?(:call)
+
+      @actor_id_setter = lambda
+    end
+
+    def actor_id_getter=(lambda)
+      raise 'Actor ID getter should be callable' unless lambda.respond_to?(:call)
+
+      @actor_id_getter = lambda
+    end
+
+    def correlation_id_setter=(lambda)
+      raise 'Correlation ID setter should be callable' unless lambda.respond_to?(:call)
+
+      @correlation_id_setter = lambda
+    end
+
+    def correlation_id_getter=(lambda)
+      raise 'Correlation ID getter should be callable' unless lambda.respond_to?(:call)
+
+      @correlation_id_getter = lambda
+    end
+
     def trace_id_setter=(lambda)
       raise 'Trace ID setter should be callable' unless lambda.respond_to?(:call)
       @trace_id_setter = lambda
