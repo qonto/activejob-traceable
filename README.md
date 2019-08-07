@@ -21,12 +21,19 @@ Or install it yourself as:
 
 ## Configuration
 
-Create an initiazlier to tell ActiveJob how to get current `trace_id` and how to set it once deserialized:
+Create an initializer to tell ActiveJob how to get current `actor_id`, `correlation_id` and `trace_id` and how to set them once deserialized:
 
 ```ruby
 # config/initializers/activejob_traceable.rb
+
+ActiveJob::Traceable.actor_id_getter = -> { CurrentScope.actor_id }
+ActiveJob::Traceable.actor_id_setter = ->(id) { CurrentScope.actor_id = id }
+
+ActiveJob::Traceable.correlation_id_getter = -> { CurrentScope.correlation_id }
+ActiveJob::Traceable.correlation_id_setter = ->(id) { CurrentScope.correlation_id = id }
+
 ActiveJob::Traceable.trace_id_getter = -> { CurrentScope.trace_id }
-ActiveJob::Traceable.trace_id_setter = -> (trace_id) { CurrentScope.trace_id = trace_id }
+ActiveJob::Traceable.trace_id_setter = ->(id) { CurrentScope.trace_id = id }
 ```
 
 ## Usage
