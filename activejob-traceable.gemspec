@@ -7,8 +7,8 @@ require 'activejob/traceable/version'
 Gem::Specification.new do |spec|
   spec.name          = 'activejob-traceable'
   spec.version       = ActiveJob::Traceable::VERSION
-  spec.authors       = ['Dmytro Zakharov']
-  spec.email         = ['dmytro@qonto.eu']
+  spec.authors       = ['Qonto team']
+  spec.email         = ['backend@qonto.eu']
 
   spec.summary       = 'Patches ActiveJob to add trace_id attribute.'
   spec.homepage      = 'https://github.com/qonto/activejob-traceable'
