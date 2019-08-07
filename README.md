@@ -1,7 +1,9 @@
 # ActiveJob::Traceable
 
-Patches ActiveJob to add an attribute `trace_id`, which is added as log's tag.
+Patches ActiveJob to add attributes `actor_id` and `correlation_id`, which are added as log's tags.
 The purpose of this patch is to be able to trace which workers are called as a result of user's HTTP request.
+
+:warning: `trace_id` attribute is now deprecated in favor of `actor_id` and `correlation_id`.
 
 ## Installation
 
@@ -21,7 +23,7 @@ Or install it yourself as:
 
 ## Configuration
 
-Create an initializer to tell ActiveJob how to get current `actor_id`, `correlation_id` and `trace_id` and how to set them once deserialized:
+Create an initializer to tell ActiveJob how to get current `actor_id` and `correlation_id` and how to set them once deserialized:
 
 ```ruby
 # config/initializers/activejob_traceable.rb
@@ -31,9 +33,6 @@ ActiveJob::Traceable.actor_id_setter = ->(id) { CurrentScope.actor_id = id }
 
 ActiveJob::Traceable.correlation_id_getter = -> { CurrentScope.correlation_id }
 ActiveJob::Traceable.correlation_id_setter = ->(id) { CurrentScope.correlation_id = id }
-
-ActiveJob::Traceable.trace_id_getter = -> { CurrentScope.trace_id }
-ActiveJob::Traceable.trace_id_setter = ->(id) { CurrentScope.trace_id = id }
 ```
 
 ## Usage
