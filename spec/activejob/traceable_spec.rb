@@ -163,16 +163,21 @@ RSpec.describe 'ActiveJobTraceableJob', type: :job do
     end
 
     let(:logger) { ActiveSupport::TaggedLogging.new(TestLogger.new) }
+    let(:current_actor_id) { 'current-actor-id' }
+    let(:current_correlation_id) { 'current-correlation-id' }
+    let(:current_trace_id) { 'current-trace-id' }
 
     before do
       ActiveJob::Base.logger = logger
+      CurrentScope.actor_id = current_actor_id
+      CurrentScope.correlation_id = current_correlation_id
       CurrentScope.trace_id = current_trace_id
     end
 
-    let(:current_trace_id) { 'current-trace-id' }
-
-    it 'uses trace_id as tag' do
+    it 'uses actor_id, correlation_id and trace_id as tags', :aggregate_failures do
       ActiveJobTraceableJob.perform_later
+      expect(logger.messages).to include(current_actor_id)
+      expect(logger.messages).to include(current_correlation_id)
       expect(logger.messages).to include(current_trace_id)
     end
   end
