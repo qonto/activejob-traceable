@@ -1,4 +1,6 @@
-lib = File.expand_path('../lib', __FILE__)
+# frozen_string_literal: true
+
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'activejob/traceable/version'
 
@@ -8,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Dmytro Zakharov']
   spec.email         = ['dmytro@qonto.eu']
 
-  spec.summary       = %q{Patches ActiveJob to add trace_id attribute.}
+  spec.summary       = 'Patches ActiveJob to add trace_id attribute.'
   spec.homepage      = 'https://github.com/qonto/activejob-traceable'
   spec.license       = 'MIT'
 
@@ -23,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport'
 
   spec.add_development_dependency 'bundler', '~> 2.0'
-  spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'rspec', '~> 3.8'
 end

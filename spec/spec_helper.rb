@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'activejob/traceable'
 require 'active_job'
@@ -18,7 +20,7 @@ RSpec.configure do |config|
     ActiveJob::Base.queue_adapter = :test
   end
 
-  config.around(:each) do |spec|
+  config.around do |spec|
     ActiveJob::Base.queue_adapter.enqueued_jobs = []
     ActiveJob::Base.queue_adapter.performed_jobs = []
     spec.run

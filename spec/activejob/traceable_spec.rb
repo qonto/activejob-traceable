@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe 'ActiveJobTraceableJob', type: :job do
@@ -105,13 +107,13 @@ RSpec.describe 'ActiveJobTraceableJob', type: :job do
   end
 
   describe 'trace_id' do
+    subject(:job) { ActiveJobTraceableJob.perform_later }
+
     let(:current_trace_id) { 'current-trace-id' }
 
     before do
       CurrentScope.trace_id = current_trace_id
     end
-
-    subject(:job) { ActiveJobTraceableJob.perform_later }
 
     describe 'accessor' do
       it 'has trace_id value' do
