@@ -4,147 +4,83 @@ require 'spec_helper'
 
 RSpec.describe 'ActiveJobTraceableJob', type: :job do
   class CurrentScope
-    cattr_accessor :actor_id, :correlation_id, :trace_id
+    cattr_accessor :first_attribute, :second_attribute
   end
 
   class ActiveJobTraceableJob < ActiveJob::Base; end
 
   before do
-    ActiveJob::Traceable.actor_id_getter = -> { CurrentScope.actor_id }
-    ActiveJob::Traceable.actor_id_setter = ->(id) { CurrentScope.actor_id = id }
+    ActiveJob::Traceable.tracing_info_getter = lambda do
+      {
+        first_attribute: CurrentScope.first_attribute,
+        second_attribute: CurrentScope.second_attribute
+      }
+    end
 
-    ActiveJob::Traceable.correlation_id_getter = -> { CurrentScope.correlation_id }
-    ActiveJob::Traceable.correlation_id_setter = ->(id) { CurrentScope.correlation_id = id }
-
-    ActiveJob::Traceable.trace_id_getter = -> { CurrentScope.trace_id }
-    ActiveJob::Traceable.trace_id_setter = ->(id) { CurrentScope.trace_id = id }
+    ActiveJob::Traceable.tracing_info_setter = lambda do |attributes|
+      CurrentScope.first_attribute = attributes[:first_attribute]
+      CurrentScope.second_attribute = attributes[:second_attribute]
+    end
   end
 
-  describe 'actor_id' do
+  describe 'tracing_info' do
     subject(:job) { ActiveJobTraceableJob.perform_later }
 
-    let(:current_actor_id) { 'current-actor-id' }
-
     before do
-      CurrentScope.actor_id = current_actor_id
+      CurrentScope.first_attribute = 'first_attribute_value'
+      CurrentScope.second_attribute = 'second_attribute_value'
     end
 
     describe 'accessor' do
-      it 'has actor_id value' do
-        expect(job.actor_id).to eq('current-actor-id')
+      it 'has tracing_info value' do
+        expect(job.tracing_info).to eq(
+          first_attribute: 'first_attribute_value',
+          second_attribute: 'second_attribute_value',
+        )
       end
     end
 
     describe 'serialize' do
-      it 'has actor_id value' do
-        expect(job.serialize).to include(actor_id: 'current-actor-id')
+      it 'has tracing_info value' do
+        expect(job.serialize).to include(
+          tracing_info: {
+            first_attribute: 'first_attribute_value',
+            second_attribute: 'second_attribute_value'
+          },
+        )
       end
     end
 
     describe 'deserialize' do
       before do
-        CurrentScope.actor_id = nil
+        CurrentScope.first_attribute = nil
+        CurrentScope.second_attribute = nil
       end
 
       let(:current_actor_id) { 'changed-actor-id' }
       let(:job_data) do
-        { 'actor_id' => 'changed-actor-id' }
+        {
+          'tracing_info' => {
+            first_attribute: 'updated_first_value',
+            second_attribute: 'updated_second_value'
+          }
+        }
       end
 
-      it 'has actor_id value' do
+      it 'has tracing_info value' do
         job.deserialize(job_data)
-        expect(job.actor_id).to eq('changed-actor-id')
+
+        expect(job.tracing_info).to eq(
+          first_attribute: 'updated_first_value',
+          second_attribute: 'updated_second_value',
+        )
       end
 
-      it 'sets actor_id to CurrentScope' do
+      it 'sets tracing_info to CurrentScope', :aggregate_failures do
         job.deserialize(job_data)
-        expect(CurrentScope.actor_id).to eq('changed-actor-id')
-      end
-    end
-  end
 
-  describe 'correlation_id' do
-    subject(:job) { ActiveJobTraceableJob.perform_later }
-
-    let(:current_correlation_id) { 'current-correlation-id' }
-
-    before do
-      CurrentScope.correlation_id = current_correlation_id
-    end
-
-    describe 'accessor' do
-      it 'has correlation_id value' do
-        expect(job.correlation_id).to eq('current-correlation-id')
-      end
-    end
-
-    describe 'serialize' do
-      it 'has correlation_id value' do
-        expect(job.serialize).to include(correlation_id: 'current-correlation-id')
-      end
-    end
-
-    describe 'deserialize' do
-      before do
-        CurrentScope.correlation_id = nil
-      end
-
-      let(:current_correlation_id) { 'changed-correlation-id' }
-      let(:job_data) do
-        { 'correlation_id' => 'changed-correlation-id' }
-      end
-
-      it 'has correlation_id value' do
-        job.deserialize(job_data)
-        expect(job.correlation_id).to eq('changed-correlation-id')
-      end
-
-      it 'sets correlation_id to CurrentScope' do
-        job.deserialize(job_data)
-        expect(CurrentScope.correlation_id).to eq('changed-correlation-id')
-      end
-    end
-  end
-
-  describe 'trace_id' do
-    subject(:job) { ActiveJobTraceableJob.perform_later }
-
-    let(:current_trace_id) { 'current-trace-id' }
-
-    before do
-      CurrentScope.trace_id = current_trace_id
-    end
-
-    describe 'accessor' do
-      it 'has trace_id value' do
-        expect(job.trace_id).to eq('current-trace-id')
-      end
-    end
-
-    describe 'serialize' do
-      it 'has trace_id value' do
-        expect(job.serialize).to include(trace_id: 'current-trace-id')
-      end
-    end
-
-    describe 'deserialize' do
-      before do
-        CurrentScope.trace_id = nil
-      end
-
-      let(:current_trace_id) { 'changed-trace-id' }
-      let(:job_data) do
-        { 'trace_id' => 'changed-trace-id' }
-      end
-
-      it 'has trace_id value' do
-        job.deserialize(job_data)
-        expect(job.trace_id).to eq('changed-trace-id')
-      end
-
-      it 'sets trace_id to CurrentScope' do
-        job.deserialize(job_data)
-        expect(CurrentScope.trace_id).to eq('changed-trace-id')
+        expect(CurrentScope.first_attribute).to eq('updated_first_value')
+        expect(CurrentScope.second_attribute).to eq('updated_second_value')
       end
     end
   end
@@ -163,22 +99,19 @@ RSpec.describe 'ActiveJobTraceableJob', type: :job do
     end
 
     let(:logger) { ActiveSupport::TaggedLogging.new(TestLogger.new) }
-    let(:current_actor_id) { 'current-actor-id' }
-    let(:current_correlation_id) { 'current-correlation-id' }
-    let(:current_trace_id) { 'current-trace-id' }
 
     before do
       ActiveJob::Base.logger = logger
-      CurrentScope.actor_id = current_actor_id
-      CurrentScope.correlation_id = current_correlation_id
-      CurrentScope.trace_id = current_trace_id
+      CurrentScope.first_attribute = 'first_attribute_value'
+      CurrentScope.second_attribute = 'second_attribute_value'
     end
 
-    it 'uses actor_id, correlation_id and trace_id as tags', :aggregate_failures do
+    it 'uses tracing_info as tags' do
       ActiveJobTraceableJob.perform_later
-      expect(logger.messages).to include(current_actor_id)
-      expect(logger.messages).to include(current_correlation_id)
-      expect(logger.messages).to include(current_trace_id)
+
+      expect(logger.messages).to include(
+        '{:first_attribute=>"first_attribute_value", :second_attribute=>"second_attribute_value"}',
+      )
     end
   end
 end
