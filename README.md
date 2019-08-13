@@ -1,9 +1,7 @@
 # ActiveJob::Traceable
 
-Patches ActiveJob to add attributes `actor_id` and `correlation_id`, which are added as log's tags.
+Patches ActiveJob to add attribute `tracing_info`, which is added as log's tag.
 The purpose of this patch is to be able to trace which workers are called as a result of user's HTTP request.
-
-:warning: `trace_id` attribute is now deprecated in favor of `actor_id` and `correlation_id`.
 
 ## Installation
 
