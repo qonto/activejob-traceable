@@ -9,9 +9,8 @@ module ActiveJob
         private
 
         def tag_logger(*tags)
-          if ActiveJob::Traceable.tracing_info_getter.respond_to?(:call)
-            tags << ActiveJob::Traceable.tracing_info_getter.call
-          end
+          tags << ActiveJob::Traceable.tracing_info_getter.call.values.compact
+          tags.flatten!
 
           if logger.respond_to?(:tagged)
             tags.unshift 'ActiveJob' unless logger_tagged_by_active_job?

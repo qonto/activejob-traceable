@@ -10,7 +10,7 @@ module ActiveJob
       def initialize(*arguments)
         super(*arguments)
 
-        @tracing_info = Traceable.tracing_info_getter.call if Traceable.tracing_info_getter.respond_to?(:call)
+        @tracing_info = Traceable.tracing_info_getter.call
       end
 
       def serialize
@@ -20,14 +20,22 @@ module ActiveJob
       def deserialize(job_data)
         super(job_data)
 
-        self.tracing_info = job_data['tracing_info']
+        if job_data['tracing_info'].is_a?(Hash)
+          self.tracing_info = job_data['tracing_info']
+        end
 
-        Traceable.tracing_info_setter.call(tracing_info) if Traceable.tracing_info_setter.respond_to?(:call)
+        Traceable.tracing_info_setter.call(tracing_info)
       end
     end
 
     class << self
-      attr_accessor :tracing_info_getter, :tracing_info_setter
+      def tracing_info_getter
+        @tracing_info_getter || -> { {} }
+      end
+
+      def tracing_info_setter
+        @tracing_info_setter || -> {}
+      end
     end
   end
 end

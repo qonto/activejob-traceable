@@ -14,15 +14,26 @@ module ActiveJob
     module_function
 
     def tracing_info_getter=(lambda)
-      raise 'Tracing info getter should be callable' unless lambda.respond_to?(:call)
+      if lambda
+        raise 'Tracing info getter should be callable' unless lambda.respond_to?(:call)
+        raise 'Tracing info getter should contain a hash' unless lambda.call.is_a?(Hash)
 
-      @tracing_info_getter = lambda
+        @tracing_info_getter = lambda
+      else
+        # Resets the value
+        @tracing_info_getter = nil
+      end
     end
 
     def tracing_info_setter=(lambda)
-      raise 'Tracing info setter should be callable' unless lambda.respond_to?(:call)
+      if lambda
+        raise 'Tracing info setter should be callable' unless lambda.respond_to?(:call)
 
-      @tracing_info_setter = lambda
+        @tracing_info_setter = lambda
+      else
+        # Resets the value
+        @tracing_info_setter = nil
+      end
     end
   end
 end
