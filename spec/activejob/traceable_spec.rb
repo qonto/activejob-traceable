@@ -78,8 +78,8 @@ RSpec.describe 'ActiveJobTraceableJob', type: :job do
     describe 'accessor' do
       it 'has tracing_info value' do
         expect(job.tracing_info).to eq(
-          first_attribute: 'first_attribute_value',
-          second_attribute: 'second_attribute_value',
+          'first_attribute' => 'first_attribute_value',
+          'second_attribute' => 'second_attribute_value',
         )
       end
 
@@ -94,9 +94,9 @@ RSpec.describe 'ActiveJobTraceableJob', type: :job do
     describe 'serialize' do
       it 'has tracing_info value' do
         expect(job.serialize).to include(
-          tracing_info: {
-            first_attribute: 'first_attribute_value',
-            second_attribute: 'second_attribute_value'
+          'tracing_info' => {
+            'first_attribute' => 'first_attribute_value',
+            'second_attribute' => 'second_attribute_value'
           },
         )
       end
