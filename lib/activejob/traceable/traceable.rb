@@ -10,11 +10,11 @@ module ActiveJob
       def initialize(*arguments)
         super(*arguments)
 
-        @tracing_info = Traceable.tracing_info_getter.call
+        @tracing_info = Traceable.tracing_info_getter.call.deep_stringify_keys
       end
 
       def serialize
-        super.merge!(tracing_info: tracing_info)
+        super.merge!('tracing_info' => tracing_info)
       end
 
       def deserialize(job_data)
@@ -24,7 +24,7 @@ module ActiveJob
           self.tracing_info = job_data['tracing_info']
         end
 
-        Traceable.tracing_info_setter.call(tracing_info)
+        Traceable.tracing_info_setter.call(tracing_info.with_indifferent_access)
       end
     end
 
