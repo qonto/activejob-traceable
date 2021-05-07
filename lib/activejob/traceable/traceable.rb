@@ -7,11 +7,12 @@ module ActiveJob
     included do
       attr_accessor :tracing_info
 
-      def initialize(*args, **kwargs)
-        super(*args, **kwargs)
+      def initialize(*args)
+        super(*args)
 
         @tracing_info = Traceable.tracing_info_getter.call.deep_stringify_keys
       end
+      ruby2_keywords :initialize if respond_to?(:ruby2_keywords, true)
 
       def serialize
         super.merge!('tracing_info' => tracing_info)
