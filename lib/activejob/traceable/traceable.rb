@@ -7,8 +7,8 @@ module ActiveJob
     included do
       attr_accessor :tracing_info
 
-      def initialize(*arguments)
-        super(*arguments)
+      def initialize(*args, **kwargs)
+        super(*args, **kwargs)
 
         @tracing_info = Traceable.tracing_info_getter.call.deep_stringify_keys
       end
