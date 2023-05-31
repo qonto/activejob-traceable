@@ -15,6 +15,7 @@ module ActiveJob
       ruby2_keywords :initialize if respond_to?(:ruby2_keywords, true)
 
       def serialize
+        add_telemetry_data!
         super.merge!('tracing_info' => tracing_info)
       end
 
@@ -25,7 +26,19 @@ module ActiveJob
           self.tracing_info = job_data['tracing_info']
         end
 
+        add_telemetry_data!
+
         Traceable.tracing_info_setter.call(tracing_info.with_indifferent_access)
+      end
+    end
+
+    private
+
+    def add_telemetry_data!
+      if ENV["OTEL_EXPORTER_OTLP_ENDPOINT"].present?
+        current_span = OpenTelemetry::Trace.current_span
+        @tracing_info[:trace_id] = current_span.context.trace_id.unpack1("H*")
+        @tracing_info[:span_id] = current_span.context.span_id.unpack1("H*")
       end
     end
 
