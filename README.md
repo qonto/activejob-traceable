@@ -58,3 +58,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/qonto/
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+# Releasing
+
+To publish a new version to rubygems, update the version in `lib/activejob/traceable/version.rb`, and merge.
