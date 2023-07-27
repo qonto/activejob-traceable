@@ -37,8 +37,8 @@ module ActiveJob
     def add_telemetry_data!
       if ENV["OTEL_EXPORTER_OTLP_ENDPOINT"].present?
         current_span = OpenTelemetry::Trace.current_span
-        @tracing_info[:trace_id] = current_span.context.trace_id.unpack1("H*")
-        @tracing_info[:span_id] = current_span.context.span_id.unpack1("H*")
+        @tracing_info["trace_id"] = current_span.context.trace_id.unpack1("H*")
+        @tracing_info["span_id"] = current_span.context.span_id.unpack1("H*")
       end
     end
 
